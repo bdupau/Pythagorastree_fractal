@@ -49,15 +49,16 @@ function drawBlock(length) {
 }
 
 function drawSubTree(length) {
+  move("forward", length);
+  
   length = shrink * length;
-
+  
   // Teken de linkse
   turn("left");
   drawBlock(length);
 
   // Ga door links
   if (length > stop) {
-    move("forward", length);
     drawSubTree(length);
 
     // Ga terug
@@ -76,7 +77,6 @@ function drawSubTree(length) {
     move("forward", length);
     turn("right");
     turn("right");
-    move("forward", length);
     drawSubTree(length);
 
     // Ga terug
@@ -96,5 +96,4 @@ turn("left");
 drawBlock(length);
 
 // Teken de rest van de boom
-move("forward", length);
 drawSubTree(length);
