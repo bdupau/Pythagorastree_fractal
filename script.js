@@ -1,82 +1,100 @@
-shrink = 0.5*Math.sqrt(2);
-
+shrink = 0.5 * Math.sqrt(2);
 var c = document.getElementById("myCanvas");
 var drawing = c.getContext("2d");
-
 var length = 100;
 var stop = 1;
-drawing.fillStyle = "#995500";
 
-function turn(direction){
+function turn(direction) {
   // Turns one eighth of a circle
-  if(direction=="right"){
-    drawing.rotate(Math.PI/4);
+  if (direction == "right") {
+    drawing.rotate(Math.PI / 4);
   };
-  if(direction=="left"){
-    drawing.rotate(-Math.PI/4);
+  if (direction == "left") {
+    drawing.rotate(-Math.PI / 4);
   };
 };
 
-function getColor(length){
-  var color = Math.floor(length/shrink)+10;
-  if(color<10){
-    color = "0"+color;
+function move(direction, distance) {
+  // Moves the origin in a certain direction
+  if (direction == "forward") {
+    drawing.translate(distance, 0);
   };
-  return color;
+  if (direction == "backward") {
+    drawing.translate(-distance, 0);
+  };
+  if (direction == "right") {
+    drawing.translate(0, distance);
+  };
+  if (direction == "left") {
+    drawing.translate(0, -distance);
+  };
 };
 
-//origin van canvas op 300,300 zetten
-drawing.translate(400,400);
-turn("left");
+function getColor(length) {
+  // Returns color between brown and green
+  // Depending on the size of the square
+  var color = Math.floor(length)+15;
+  if (color < 10) {
+    color = "0" + color;
+  };
+  if (color > 99) {
+    color = "AA";
+  };
+  return "#" + color + "5500";
+};
 
-// Misschien moeten we wel twee recursion functies maken,
-// Eentje voor links doorgaan, en eentje voor rechts doorgaan ?
-function recursion(length){
-  length = shrink*length;
-  
+function drawBlock(length) {
+  drawing.fillStyle = getColor(length);
+  drawing.fillRect(0, 0, length, length);
+}
+
+function drawSubTree(length) {
+  length = shrink * length;
+
   // Teken de linkse
   turn("left");
-  drawing.fillStyle = "#"+getColor(length)+"5500";
-  drawing.fillRect(0,0,length,length);
-  
+  drawBlock(length);
+
   // Ga door links
-  if(length > stop){
-    drawing.translate(length,0);
-    recursion(length);
-    
+  if (length > stop) {
+    move("forward", length);
+    drawSubTree(length);
+
     // Ga terug
     turn("right");
-    drawing.translate(-length,-length);
+    move("backward", length);
+    move("left", length);
   };
-     
+
   // Teken de rechtse
-  turn("right");
-  drawing.translate(0,length/shrink);
-  turn("left");
-  drawing.fillStyle = "#"+getColor(length)+"5500";
-  drawing.fillRect(0,0,length,length);
- 
+  move("backward", length);
+  move("right", length);
+  drawBlock(length);
+
   // Ga door rechts
-  if(length > stop){
-    drawing.translate(length,0);
+  if (length > stop) {
+    move("forward", length);
     turn("right");
     turn("right");
-    drawing.translate(length,0);
-    recursion(length);
-    
+    move("forward", length);
+    drawSubTree(length);
+
     // Ga terug
     turn("right");
-    drawing.translate(-length,0);
+    move("backward", length);
     turn("left");
     turn("left");
   };
 };
 
-// Teken de eerste
-drawing.translate(length,0);
-turn("left");
-drawing.fillRect(0,0,shrink*length,shrink*length);
-drawing.translate(shrink*length,0);
+// Origin van canvas op 300, 400 zetten
+drawing.translate(300, 400);
 
-// Teken de rest
-recursion(shrink*length);
+// Teken de stam
+turn("left");
+turn("left");
+drawBlock(length);
+
+// Teken de rest van de boom
+move("forward", length);
+drawSubTree(length);
